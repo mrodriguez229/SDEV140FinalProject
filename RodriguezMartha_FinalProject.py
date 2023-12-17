@@ -29,6 +29,7 @@ class restaurantBillApp:
 #guest(s) will be eating based off of how many are in the party.
     def menuScreen(self):
         try:
+            #This takes the number the user inputs, converts it to an integer and uses it as the number of people in the party
             guestsEntryValue = self.guestsEntry.get()
             numberOfGuests = int(guestsEntryValue)
             if numberOfGuests <= 0:
@@ -42,6 +43,7 @@ class restaurantBillApp:
         self.menuFrame = tk.Frame(self.root)
         tk.Label(self.menuFrame, text="Menu:").pack(pady=20)
 
+        #List of items in the menu, and their corresponding price
         menuItems = {
             "burger": 12.50,
             "pizza": 15.99,
@@ -82,6 +84,7 @@ class restaurantBillApp:
         totalScreen = tk.Toplevel(self.root)
         totalScreen.title("Total Screen")
 
+        #The party bill is the empty list and adds the food items the user has chosen to that list
         partyBill = self.guestsEntry.get()
 
         partyBill = int(self.guestsEntry.get())
@@ -95,20 +98,21 @@ class restaurantBillApp:
             "hotdog": 6.50
         }
 
-        partyBill = []
-
         for i in menuItems in enumerate(self.menuVars, start=1):
             partyBill = menuVars.get()
             price = menuItems.get(partyBill, 0.0)
             partyBill.append((partyBill, price))
 
+        #Converts gratuity to a number that can be calculate
         gratuityPercentage = int(self.gratuityVar.get().rstrip("%"))
         gratuityRate = gratuityPercentage / 100
 
+        #Shows the total before tax and gratuity, then adds tax, and seperately adds gratuity
         subtotal = sum(item[1] for item in partyBill)
         tax = 0.07 * subtotal
         gratuity = gratuityRate * subtotal
 
+        #Shows the total of the bill without tax and with tax
         totalWithoutTax = subtotal + gratuity
         totalWithTax = totalWithoutTax + tax
 
