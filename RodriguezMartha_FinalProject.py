@@ -1,66 +1,136 @@
-def billCalculator(items):
-    #Shows the menu of items and the price that corresponds and will add them to a bill
-    menu = {
-        'burger': 10.99,
-        'chicken wings': 12.50,
-        'spaghetti': 9.99,
-        'steak': 14.99,
-        'pizza': 8.99,
-        'salad': 5.99,
-        'soda': 1.99,
-        'water': 0.99,
-        'lemonade': 2.50
-    }
+import tkinter as tk
+from tkinter import ttk
 
-    #Calculate the subtotal
-    subtotal = sum(menu[item] for item in items)
+class restaurantBillApp:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("Restaurant Bill App")
+        self.titleWindow()
 
-    #Calculate the tax
-    taxRate = 0.07
-    tax = subtotal * taxRate
-    return subtotal + tax
+#Creates a title screen that shows a start button
+    def titleWindow(self):
+        self.titleFrame = tk.Frame(self.root)
+        tk.Label(self.titleFrame, text="Welcome to Restaurant Bill App").pack(pady=20)
+        tk.Button(self.titleFrame, text="Start", command=self.getGuestsScreen).pack()
+        self.titleFrame.pack()
 
+#Takes the user to a new window that asks how many people are in the party
+    def getGuestsScreen(self):
+        self.titleFrame.destroy()
+
+        self.getGuestsFrame = tk.Frame(self.root)
+        tk.Label(self.getGuestsFrame, text="Enter the number of guests:").pack(pady=20)
+        self.guestsEntry = tk.Entry(self.getGuestsFrame)
+        self.guestsEntry.pack(pady=10)
+        tk.Button(self.getGuestsFrame, text="Next", command=self.menuScreen).pack()
+        self.getGuestsFrame.pack()
+
+#Takes the user to the menu screen which will ask what the 
+#guest(s) will be eating based off of how many are in the party.
+    def menuScreen(self):
+        try:
+            guestsEntryValue = self.guestsEntry.get()
+            numberOfGuests = int(guestsEntryValue)
+            if numberOfGuests <= 0:
+                raise ValueError("Number of guests must be a positive integer.")
+        except ValueError as e:
+            print(f"Error: {e}")
+            return
+        
+        self.getGuestsFrame.destroy()
+
+        self.menuFrame = tk.Frame(self.root)
+        tk.Label(self.menuFrame, text="Menu:").pack(pady=20)
+
+        menuItems = {
+            "burger": 12.50,
+            "pizza": 15.99,
+            "spaghetti": 14.50,
+            "salad": 8.99,
+            "chicken tenders": 11.50,
+            "hotdog": 6.50
+        }
+
+        self.menuVars = [tk.StringVar() for _ in range(numberOfGuests)]
+        for i in range(numberOfGuests):
+            tk.Label(self.menuFrame, text=f"Guest {i + 1} Menu:").pack(pady=10)
+            entry = ttk.Combobox(self.menuFrame, textvariable=self.menuVars[i], values=list(menuItems.keys()))
+            entry.pack(pady=10)
+
+        tk.Button(self.menuFrame, text="Next", command=self.getGratuityScreen).pack(pady=10)
+        self.menuFrame.pack()
+
+#Takes the user to the getGratuityScreen which will ask the amount of 
+#gratuity the user would like to add to the party's bill
+    def getGratuityScreen(self):
+        self.menuFrame.destroy()
+
+        self.getGratuityFrame = tk.Frame(self.root)
+        tk.Label(self.getGratuityFrame, text="Choose gratuity:").pack(pady=20)
+
+        self.gratuityVar = tk.StringVar()
+        gratuityOptions = ["18%", "20%", "22%"]
+        ttk.Combobox(self.getGratuityFrame, textvariable=self.gratuityVar, values=gratuityOptions).pack(pady=10)
+
+        tk.Button(self.getGratuityFrame, text="Calculate", command=self.totalScreen).pack(pady=10)
+
+        self.getGratuityFrame.pack()
+
+#Takes the user to the totalScreen which will take the price from every food 
+#the guest(s) have chosen, adds sales tax, and also gratuity that was chosen and displays it.
+    def totalScreen(self):
+        totalScreen = tk.Toplevel(self.root)
+        totalScreen.title("Total Screen")
+
+        partyBill = self.guestsEntry.get()
+
+        partyBill = int(self.guestsEntry.get())
+
+        menuItems = {
+            "burger": 12.50,
+            "pizza": 15.99,
+            "spaghetti": 14.50,
+            "salad": 8.99,
+            "chicken tenders": 11.50,
+            "hotdog": 6.50
+        }
+
+        partyBill = []
+
+        for i in menuItems in enumerate(self.menuVars, start=1):
+            partyBill = menuVars.get()
+            price = menuItems.get(partyBill, 0.0)
+            partyBill.append((partyBill, price))
+
+        gratuityPercentage = int(self.gratuityVar.get().rstrip("%"))
+        gratuityRate = gratuityPercentage / 100
+
+        subtotal = sum(item[1] for item in partyBill)
+        tax = 0.07 * subtotal
+        gratuity = gratuityRate * subtotal
+
+        totalWithoutTax = subtotal + gratuity
+        totalWithTax = totalWithoutTax + tax
+
+        tk.Label(totalScreen, text=f"Total (Before Tax): ${totalWithoutTax:.2f}").pack(pady=10)
+        tk.Label(totalScreen, text=f"Total (With Tax): ${totalWithTax:.2f}").pack(pady=10)
+
+        totalEntry = tk.Entry(totalScreen, state="readonly", font=("Helvetica", 14))
+        totalEntry.insert(0, f"Total: ${totalWithTax + gratuity:.2f}")
+        totalEntry.pack(pady=20)
+
+        tk.Button(totalScreen, text="Exit", command=self.restartProgram).pack()
+
+#Will restart the program and take the user back to the title screen.
+    def restartProgram(self):
+        self.root.destroy()
+        main()
+
+#Initializes the app
 def main():
-    #Get the number of people in the party
-    numberOfPeople = int(input("How many people are in the party? "))
-
-    #Initialize an empty list to store the items chosen by each person
-    partyTab = []
-
-    # Loop through each person in the party
-    for person in range(1, numberOfPeople + 1):
-        print(f"\nPerson {person}:")
-        personItems = []
-
-        # Ask what they will be eating
-        while True:
-            item = input("What will you be eating. If you are done ordering type 'done'? ").lower()
-            if item == 'done':
-                break
-            elif item in menu:
-                personItems.append(item)
-            else:
-                print("Invalid item. Please choose from the menu.")
-
-        # Add the person's items to the overall list
-        partyTab.extend(personItems)
-
-    # Calculate the bill
-    total = billCalculator(partyTab)
-
-    # Ask for gratuity percentage
-    gratuityPercentage = float(input("Enter gratuity percentage (18%, 20%, or 22%): "))
-    gratuity = total * (gratuityPercentage / 100)
-
-    # Calculate the final total
-    finalTotal = total + gratuity
-
-    # Display the results
-    print("\nSummary:")
-    print(f"Subtotal: ${total:.2f}")
-    print(f"Gratuity ({gratuity_percentage}%): ${gratuity:.2f}")
-    print(f"Total: ${finalTotal:.2f}")
-
+    root = tk.Tk()
+    app = restaurantBillApp(root)
+    root.mainloop()
 
 if __name__ == "__main__":
     main()
